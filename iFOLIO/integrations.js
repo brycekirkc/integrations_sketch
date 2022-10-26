@@ -1,72 +1,184 @@
-var cc = [];//company circle
+//Establishing Variables
+var con;
+var dim;
 var cen;
-var s;
 var tick = 0;
-var circ_num;
+var ran = [];
+var num = [4, 5, 3, 5, 10];
+var s;
 
-var worksize = {
-  w: 1440, //what is the working width of how you planned this?
-  h:1024, // what is the working height of how you planned this?
-}
+var txtli = ['iFOLIO' , 'OPTIMIZE\nPROCESSES' , ' CONVERT' , 'CONNECT' , 'ENGAGE'];
+var cc = [];
 
-function setup(){
-  createCanvas(windowWidth,windowHeight);
+function setup() {
+  for (i = 0; i < 50; i++){
+    ran[i] = {
+      x: random(50, 100),
+      y: random(50, 100)
+    }
+  }
+  for (i = 1; i < 40; i++){
+    cc[i] = {
+      x: sin((i+1.25) * PI/2 + sin(tick/ran[i].x )/10 ),
+      y: cos((i+1.25) * PI/2 + cos(tick/ran[i].y )/10 ),
+      r: 100,
+      out_x:0,
+      out_y:0,
+      id: i
+    }
+  }
+  
+  active_var();
+  
+  ellipseMode(CENTER);
   textAlign(CENTER);
-  active_v();
+  
+  s = dim.w/1440;
+  
+  createCanvas(dim.w, dim.h);
 }
 
-function active_v(){
+function active_var(){
+  con = select('#divcon');
   tick++;
-  s = {
-    w: windowWidth/ worksize.w,
-    h: windowHeight/ worksize.h,
+  
+  dim = {
+    w: con.width,
+    h: con.height,
   };
+  s = dim.w/1440;
   
   cen = {
-    w: windowWidth/2,
-    h: windowHeight/2,
+    w: dim.w / 2,
+    h: dim.h / 2
   };
   
-  for (i = 0; i < 10; i++){
-    cc[i] = {//company circle variables
-      x: 100 * i + 50 * cos(i + tick/50),
-      y: cen.h + 100 * sin(i + tick/50),
-      r: 55,
-    };
-    //console.log(sin(i + tick/10));
+  cc[0] = {
+    x: cen.w + sin(tick/70) * 10,
+    y: cen.h + cos(tick/50) * 10,
+    out_x: cen.w + sin(tick/70) * 10,
+    out_y: cen.h + cos(tick/50) * 10,
+    r: 200 * s,
+    id: 0,
+  };
+  
+  for (i = 1; i < 5; i++){
+    cc[i].x = sin((i+1.25) * PI/2 + sin(tick/ran[i].x )/10 );
+    cc[i].y = cos((i+1.25) * PI/2 + cos(tick/ran[i].y )/10 );
+    cc[i].r = 100 * s;
+    cc[i].id= i
+  }
+  for (i = 5; i < 40; i++){
+    cc[i].x = sin((i-2.5) * PI/4 + sin(tick/ran[i].x )/10 ) * 1.2;
+    cc[i].y = cos((i-2.5) * PI/4 + cos(tick/ran[i].y )/10 ) * 1.2;
+    cc[i].r = 75 * s;
+    cc[i].id= i
   }
 }
 
-function draw(){
-  createCanvas(windowWidth,windowHeight);
-  background('#fff');
-  active_v();
+function draw() {
+  active_var();
   
-  for (i = 0; i < 10 ; i++){
-    /*console.log(cc[i].x);//for testing if the company circle setup is correct
-    console.log(cc[i].y);//for testing if the company circle setup is correct
-    console.log(cc[i].r);//for testing if the company circle setup is correct*/
-    company_c(cc[i].x , cc[i].y , cc[i].r);
+  createCanvas(
+    dim.w,
+    dim.h
+  );
+  
+  background('#F3F7FB');
+  
+  for(i = 0; i < 10; i++){
+    company_c(i+18, 1, 4)
   }
-  ellipse(100 , 100 , 100 , 100);
   
-  ellipse(cen.w + 100*sin(tick/10), cen.h + 100*cos(tick/10), 100,100);
+  for(i = 0; i < 5; i++){
+    company_c(i+13, 1, 3)
+  }
   
+  for(i = 0; i < 3; i++){
+    company_c(i+10, 1, 2)
+  }
+  
+  for(i = 0; i < 5; i++){
+    company_c(i+5, 1, 1)
+  }
+  
+  for(i = 0; i < 4; i++){
+    company_c(i+1, 1, 0)
+  }
+  
+  centerpiece();
 }
 
-function company_c(x, y, r, id){
+function centerpiece(){
   push();
-  translate(0,0);
-  setLineDash([5, 5]);
-  line(100,100,x,y);
+  
+  //Location
+  translate(
+    cc[0].x, 
+    cc[0].y
+  );
+
+  
+  //Stroke
+  strokeWeight(5);
+  stroke('#25BEC8');
+  ellipse(
+    0,
+    0, 
+    cc[0].r,
+    cc[0].r
+  );
+  
+  txt( txtli[0] , 0 , 15*s, 90*s );
+  
+  pop();
+}
+
+function company_c( myid , tier , parentid){
+  let x = cc[myid].x * cc[parentid].r + cc[parentid].out_x;
+  let y = cc[myid].y * cc[parentid].r + cc[parentid].out_y;
+  cc[myid].out_x = x;
+  cc[myid].out_y = y;
+  
+  push();
+  setLineDash([5,5]);
+  stroke('#25BEC8');
+  line(
+    x,
+    y,
+    cc[parentid].out_x,
+    cc[parentid].out_y
+  );
   pop();
   
   push();
-  translate(x,y);
+  
+  translate(
+    x,
+    y
+  )
+  
   stroke('#25BEC8');
-  strokeWeight(2);
-  color('white');
-  ellipse(0,0,r,r);
+  ellipse(
+    0,
+    0,
+    cc[myid].r,
+    cc[myid].r
+  )
+  
+  if (myid < 5){
+    txt(txtli[myid], 0 , 5, 10*s);
+  }
+  
+  pop();
+}
+
+function txt(s , x , y, f){
+  //Text
+  push();
+  textSize(f*s);
+  noStroke();
+  text(s , x, y);
   pop();
 }
 
